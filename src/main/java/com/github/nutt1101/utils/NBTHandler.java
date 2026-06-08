@@ -36,6 +36,11 @@ public class NBTHandler {
             String nbtString = data.get(new NamespacedKey(plugin, "entity"), PersistentDataType.STRING);
             if (nbtString != null) {
                 NBTContainer nbtContainer = new NBTContainer(nbtString);
+                // Strip UUID so Moonrise's EntityLookup keeps tracking the newly-spawned entity
+                // under its own UUID; merging the old UUID causes "Failed to remove entity by uuid"
+                nbtContainer.removeKey("UUID");
+                nbtContainer.removeKey("UUIDMost");
+                nbtContainer.removeKey("UUIDLeast");
                 NBTEntity nbtEntity = new NBTEntity(entity);
                 nbtEntity.mergeCompound(nbtContainer);
 
