@@ -41,6 +41,19 @@ public class NBTHandler {
                 nbtContainer.removeKey("UUID");
                 nbtContainer.removeKey("UUIDMost");
                 nbtContainer.removeKey("UUIDLeast");
+                // Strip position/movement tags so the restored entity stays where it is placed
+                // instead of being teleported back to its original catch location (which made
+                // far-away captures "disappear" on release).
+                nbtContainer.removeKey("Pos");
+                nbtContainer.removeKey("Motion");
+                nbtContainer.removeKey("Rotation");
+                nbtContainer.removeKey("FallDistance");
+                nbtContainer.removeKey("OnGround");
+                nbtContainer.removeKey("WorldUUIDMost");
+                nbtContainer.removeKey("WorldUUIDLeast");
+                nbtContainer.removeKey("Dimension");
+                nbtContainer.removeKey("Paper.Origin");
+                nbtContainer.removeKey("Paper.OriginWorld");
                 NBTEntity nbtEntity = new NBTEntity(entity);
                 nbtEntity.mergeCompound(nbtContainer);
 

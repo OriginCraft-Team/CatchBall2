@@ -324,10 +324,10 @@ public class HitEvent implements Listener {
     public boolean landsCheck(Player player, Location location) {
         if (!CatchBall.hasLands) { return true; }
 
-        LandWorld world = CatchBall.landsAPI.getWorld(hitLocation.getWorld());
+        LandWorld world = CatchBall.landsAPI.getWorld(location.getWorld());
 
         if (world != null) { // Lands is enabled in this world
-            if (world.hasFlag(player, hitLocation, null, me.angeschossen.lands.api.flags.Flags.ATTACK_ANIMAL, false)) {
+            if (world.hasFlag(player, location, null, me.angeschossen.lands.api.flags.Flags.ATTACK_ANIMAL, false)) {
                 return true;
             } else {
                 return false;
