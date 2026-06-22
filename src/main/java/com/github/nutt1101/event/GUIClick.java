@@ -56,13 +56,17 @@ public class GUIClick implements Listener{
                         EntityType entityType = EntityType.valueOf(ChatColor.stripColor(clickItem.getItemMeta().getDisplayName()));
 
                         int loreIndex = getLoreIndex(lore, "{CATCHABLE}");
-                        if (ConfigSetting.catchableEntity.contains(entityType)) {
-                            ConfigSetting.catchableEntity.remove(entityType);
+                        // catchableEntity is a List<String>, so compare/remove by the
+                        // entity name rather than the EntityType object (which would
+                        // never match and break the toggle).
+                        String entityName = entityType.name();
+                        if (ConfigSetting.catchableEntity.contains(entityName)) {
+                            ConfigSetting.catchableEntity.remove(entityName);
                             lore.set(loreIndex, ChatColor.translateAlternateColorCodes('&', ConfigSetting.
                                     toChat(TranslationFileReader.guiSkullLore.get(loreIndex), "", "").replace("{CATCHABLE}", "&cFALSE")));
 
                         } else {
-                            ConfigSetting.catchableEntity.add(String.valueOf(entityType));
+                            ConfigSetting.catchableEntity.add(entityName);
                             lore.set(loreIndex, ChatColor.translateAlternateColorCodes('&', ConfigSetting.
                                     toChat(TranslationFileReader.guiSkullLore.get(loreIndex), "", "").replace("{CATCHABLE}", "&aTRUE")));
                         }
