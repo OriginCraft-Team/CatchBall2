@@ -65,6 +65,11 @@ public class SkullClick implements Listener{
                         return;
                     }
 
+                    if (ConfigSetting.UseLands && !new HitEvent().landsCheck(player, event.getClickedBlock().getLocation())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
                     try {
                         // Use safe method to get EntityType
                         String entityTypeString = data.get(new NamespacedKey(plugin, "entityType"), PersistentDataType.STRING);
