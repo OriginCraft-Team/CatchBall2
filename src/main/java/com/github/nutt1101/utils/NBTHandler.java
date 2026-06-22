@@ -12,6 +12,22 @@ import org.bukkit.plugin.Plugin;
 
 public class NBTHandler {
 
+    /**
+     * Tags that must NOT be merged back when releasing a captured entity:
+     * - UUID tags: so Moonrise's EntityLookup keeps tracking the newly-spawned
+     *   entity under its own UUID (merging the old UUID causes
+     *   "Failed to remove entity by uuid").
+     * - Position/movement tags: so the entity stays where it is placed instead
+     *   of being teleported back to its original catch location (which made
+     *   far-away captures "disappear" on release).
+     */
+    private static final String[] POSITION_AND_IDENTITY_TAGS = {
+            "UUID", "UUIDMost", "UUIDLeast",
+            "Pos", "Motion", "Rotation", "FallDistance", "OnGround",
+            "WorldUUIDMost", "WorldUUIDLeast", "Dimension",
+            "Paper.Origin", "Paper.OriginWorld"
+    };
+
     public static ItemMeta saveEntityNBT(Plugin plugin, Entity hitEntity, ItemMeta headMeta) {
         NBTEntity nbtEntity = new NBTEntity(hitEntity);
         String nbtData = nbtEntity.toString();
@@ -36,24 +52,9 @@ public class NBTHandler {
             String nbtString = data.get(new NamespacedKey(plugin, "entity"), PersistentDataType.STRING);
             if (nbtString != null) {
                 NBTContainer nbtContainer = new NBTContainer(nbtString);
-                // Strip UUID so Moonrise's EntityLookup keeps tracking the newly-spawned entity
-                // under its own UUID; merging the old UUID causes "Failed to remove entity by uuid"
-                nbtContainer.removeKey("UUID");
-                nbtContainer.removeKey("UUIDMost");
-                nbtContainer.removeKey("UUIDLeast");
-                // Strip position/movement tags so the restored entity stays where it is placed
-                // instead of being teleported back to its original catch location (which made
-                // far-away captures "disappear" on release).
-                nbtContainer.removeKey("Pos");
-                nbtContainer.removeKey("Motion");
-                nbtContainer.removeKey("Rotation");
-                nbtContainer.removeKey("FallDistance");
-                nbtContainer.removeKey("OnGround");
-                nbtContainer.removeKey("WorldUUIDMost");
-                nbtContainer.removeKey("WorldUUIDLeast");
-                nbtContainer.removeKey("Dimension");
-                nbtContainer.removeKey("Paper.Origin");
-                nbtContainer.removeKey("Paper.OriginWorld");
+                for (String key : POSITION_AND_IDENTITY_TAGS) {
+                    nbtContainer.removeKey(key);
+                }
                 NBTEntity nbtEntity = new NBTEntity(entity);
                 nbtEntity.mergeCompound(nbtContainer);
 
