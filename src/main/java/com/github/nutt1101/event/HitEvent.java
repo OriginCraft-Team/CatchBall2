@@ -77,7 +77,7 @@ public class HitEvent implements Listener {
             event.getEntity().remove();
             // hit a entity
             if (event.getHitEntity() != null) {
-                handleEntityCatch(player, event.getHitEntity(), true, null);
+                handleEntityCatch(player, event.getHitEntity(), true);
                 // hit block, catchBall will be return
             } else if (event.getHitBlock() != null) {
                 event.getEntity().remove();
@@ -147,65 +147,51 @@ public class HitEvent implements Listener {
         }
 
         // Handle the entity catch
-        handleEntityCatch(player, targetEntity, false, itemInHand);
+        handleEntityCatch(player, targetEntity, false);
     }
 
-    private boolean handleEntityCatch(Player player, Entity hitEntity, boolean isProjectile, ItemStack itemInHand) {
+    private boolean handleEntityCatch(Player player, Entity hitEntity, boolean isProjectile) {
         hitLocation = hitEntity.getLocation();
 
         // Check all protection plugins using static flags
         if (!resCheck(player, hitEntity.getLocation()) && ConfigSetting.UseRes) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!mmCheck(player, hitEntity) && ConfigSetting.UseMM) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!gfCheck(player, hitEntity.getLocation()) && ConfigSetting.UseGF) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!landsCheck(player, hitEntity.getLocation()) && ConfigSetting.UseLands) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!rpCheck(player, hitEntity.getLocation()) && ConfigSetting.UseRP) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!scsCheck(player, hitEntity.getLocation()) && ConfigSetting.UseSCS) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
 
         if (!townyCheck(player, hitEntity.getLocation()) && ConfigSetting.UseTowny) {
-            if (isProjectile) {
-                hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-            }
+            returnBall(player, hitEntity, isProjectile);
             player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
             return false;
         }
@@ -216,9 +202,7 @@ public class HitEvent implements Listener {
                 boolean isNullOwnerValue = tameable.getOwner() == null;
                 boolean sameOwner = isNullOwnerValue ? true : tameable.getOwner().getName().equals(player.getName());
                 if ((isNullOwnerValue && !ConfigSetting.allowCatchableTamedOwnerIsNull) || !sameOwner) {
-                    if (isProjectile) {
-                        hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
-                    }
+                    returnBall(player, hitEntity, isProjectile);
                     player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitEntity.getLocation()), ""));
                     return false;
                 }
@@ -231,9 +215,7 @@ public class HitEvent implements Listener {
         if (isEntityCatchable(hitEntity.getType()) && !(hitEntity instanceof Player) && !checkCustom.equals("CUSTOM")) {
             // Check catch failure rate
             if(Math.random() < ConfigSetting.catchFailRate) {
-                if (isProjectile) {
-                    hitEntity.getWorld().dropItem(hitLocation, Ball.makeBall());
-                }
+                returnBall(player, hitEntity, isProjectile);
                 player.sendMessage(ConfigSetting.toChat(TranslationFileReader.catchFail, getCoordinate(hitLocation), hitEntity.getType().name()));
                 return false;
             }
@@ -258,10 +240,24 @@ public class HitEvent implements Listener {
 
         // If entity cannot be caught, return catch ball
         player.sendMessage(ConfigSetting.toChat(TranslationFileReader.canNotCatchable, getCoordinate(hitLocation), ""));
-        if (isProjectile) {
-            hitEntity.getWorld().dropItem(hitLocation, Ball.makeBall());
-        }
+        returnBall(player, hitEntity, isProjectile);
         return false;
+    }
+
+    /**
+     * Return one catch ball after a failed catch attempt. For thrown balls the
+     * ball is dropped at the entity; for right-click catches the ball was
+     * already taken from the player's hand, so give it back to their inventory
+     * (any overflow is dropped at the player's feet).
+     */
+    private void returnBall(Player player, Entity hitEntity, boolean isProjectile) {
+        if (isProjectile) {
+            hitEntity.getWorld().dropItem(hitEntity.getLocation(), Ball.makeBall());
+        } else {
+            for (ItemStack overflow : player.getInventory().addItem(Ball.makeBall()).values()) {
+                player.getWorld().dropItem(player.getLocation(), overflow);
+            }
+        }
     }
 
     private boolean isCatchBall(ItemStack item) {
