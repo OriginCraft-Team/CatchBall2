@@ -55,7 +55,7 @@ public class HeadDrop {
         if (hitEntity.getCustomName() != null) {
             headMeta.setDisplayName(ChatColor.WHITE + hitEntity.getCustomName());
         } else {
-            headMeta.setDisplayName(ChatColor.WHITE + entityFile.getString("EntityList." + hitEntity.getType().toString() + ".DisplayName"));
+            headMeta.setDisplayName(ChatColor.WHITE + ConfigSetting.getEntityDisplayName(hitEntity.getType().toString()));
         }
 
         List<String> headLore = new ArrayList<>();

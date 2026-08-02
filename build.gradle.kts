@@ -15,7 +15,7 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 repositories {
     mavenLocal()
     maven {
-        url = uri("https://repo.destroystokyo.com/repository/maven-public//")
+        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
 
     maven {
@@ -39,10 +39,6 @@ repositories {
     }
 
     maven {
-        url = uri("https://repo.jeff-media.com/public/")
-    }
-
-    maven {
         url = uri("https://repo.codemc.io/repository/maven-public/")
     }
 
@@ -59,10 +55,9 @@ repositories {
 
 dependencies {
     api("org.bstats:bstats-bukkit:3.1.0")
-    api("com.jeff_media:SpigotUpdateChecker:3.0.4")
-    api("de.tr7zw:item-nbt-api:2.15.2-20250717.183515-1")
+    api("de.tr7zw:item-nbt-api:2.15.2")
     api("cn.handyplus.lib.adapter:FoliaLib:1.2.1")
-    api("com.tchristofferson:ConfigUpdater:2.2-SNAPSHOT")
+    api("com.tchristofferson:ConfigUpdater:2.2")
     compileOnly("org.spigotmc:spigot-api:1.20.5-R0.1-SNAPSHOT")
     compileOnly("io.lumine:Mythic-Dist:5.9.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.14")
@@ -106,7 +101,6 @@ tasks {
 
         minimize()
 
-        relocate("com.jeff_media.updatechecker", "tw.maoyue.catchball.libs.updatechecker")
         relocate("de.tr7zw.changeme.nbtapi", "tw.maoyue.catchball.libs.nbtapi")
         relocate("org.bstats", "tw.maoyue.catchball.libs.bstats")
 
